@@ -1,12 +1,13 @@
-import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
+import { ThemeProvider } from "@mui/material/styles";
+import { Router } from "./router";
 import { darkTheme } from "./styles/global";
 
 export function App() {
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      <h1>Hello world!!</h1>
+      <Router />
     </ThemeProvider>
   );
 }
