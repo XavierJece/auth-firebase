@@ -1,11 +1,14 @@
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
   createContext,
   ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useState,
 } from "react";
 import { authenticationService } from "../server";
+import { appFirebase } from "../server/firebase/config";
 
 interface ICredentials {
   email: string;
@@ -24,6 +27,7 @@ interface IAuthContextProps {
   user: IUser;
   logout(): void;
   login(credenciais: ICredentials): Promise<void>;
+  isAuthenticating: boolean;
 }
 
 interface IAuthProvider {
@@ -33,9 +37,27 @@ interface IAuthProvider {
 const AuthContext = createContext<IAuthContextProps>({} as IAuthContextProps);
 
 export const AuthProvider = ({ children }: IAuthProvider) => {
-  const [data, setData] = useState<IAuthState>(() => {
-    return {} as IAuthState;
-  });
+  const [data, setData] = useState<IAuthState>({} as IAuthState);
+  const [isAuthenticating, setIsAuthenticating] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(getAuth(appFirebase), (user) => {
+      if (user) {
+        const email = user.email as string;
+        setData({
+          user: {
+            email,
+            name: email.split("@")[0],
+          },
+        });
+      }
+
+      setIsAuthenticating(false);
+
+      // Cleanup subscription on unmount
+      return () => unsubscribe();
+    });
+  }, []);
 
   const login = useCallback(async ({ email, password }: ICredentials) => {
     const { name } = await authenticationService.singIn({
@@ -53,6 +75,7 @@ export const AuthProvider = ({ children }: IAuthProvider) => {
 
   const logout = useCallback(async () => {
     await authenticationService.singOut();
+    setData({} as IAuthState);
   }, []);
 
   return (
@@ -61,9 +84,10 @@ export const AuthProvider = ({ children }: IAuthProvider) => {
         user: data.user,
         login,
         logout,
+        isAuthenticating,
       }}
     >
-      {children}
+      {!isAuthenticating && children}
     </AuthContext.Provider>
   );
 };

@@ -100,15 +100,6 @@ export function SingIn() {
             Sign In
           </Button>
 
-          <Button
-            type="button"
-            fullWidth
-            variant="outlined"
-            sx={{ mt: 3, mb: 2 }}
-          >
-            sign Out
-          </Button>
-
           <Grid container>
             <Grid item xs>
               <StyleLink component={Link} to="#">

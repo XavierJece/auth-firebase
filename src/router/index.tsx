@@ -1,17 +1,46 @@
 import { Route, Routes } from "react-router-dom";
+import { useAuth } from "../hooks/auth";
+import {
+  Home,
+  GeneralDashboard,
+  SummaryDashboard,
+  MonitoringDashboard,
+} from "../pages/dashboard";
 import { SingIn } from "../pages/singIn";
 import { CheckAuthorization } from "./CheckAuthorization";
 export function Router() {
+  const { user } = useAuth();
+
   return (
     <Routes>
-      <Route path="/" element={<h1>Home não logada</h1>} />
-      <Route path="/singIn" element={<SingIn />} />
+      <Route path="/" element={<Home />} />
+      <Route
+        path="/singIn"
+        element={!user ? <SingIn /> : <GeneralDashboard />}
+      />
+
+      <Route
+        path="/dashboard/summary"
+        element={
+          <CheckAuthorization>
+            <SummaryDashboard />
+          </CheckAuthorization>
+        }
+      />
+      <Route
+        path="/dashboard/monitoring"
+        element={
+          <CheckAuthorization>
+            <MonitoringDashboard />
+          </CheckAuthorization>
+        }
+      />
 
       <Route
         path="/dashboard"
         element={
           <CheckAuthorization>
-            <h1>Dashboard Geral</h1>
+            <GeneralDashboard />
           </CheckAuthorization>
         }
       />

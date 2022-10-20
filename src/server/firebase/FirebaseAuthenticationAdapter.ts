@@ -1,4 +1,10 @@
-import { getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
+  User as IFirebaseUser,
+} from "firebase/auth";
 import { CredentialsDTO, IAuthentication } from "../../interface/Auth";
 import { UserDTO } from "../../interface/user.dto";
 
@@ -14,14 +20,20 @@ export class FirebaseAuthenticationAdapter implements IAuthentication {
       password
     );
 
+    return this.getInformationUser(user);
+  }
+
+  async singOut(): Promise<void> {
+    await signOut(this.authFirebase);
+  }
+  private getInformationUser(user: IFirebaseUser): UserDTO {
+    const email = user.email as string;
+
     return {
-      email: user.email as string,
+      email,
       id: user.uid,
       avatar: user.photoURL || undefined,
       name: user.displayName || email.split("@")[0],
     };
-  }
-  async singOut(): Promise<void> {
-    await signOut(this.authFirebase);
   }
 }
