@@ -15,17 +15,43 @@ import CssBaseline from "@mui/material/CssBaseline";
 
 import { Link } from "react-router-dom";
 
+import { auth } from "../../server/firebase/config";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+
 import LogoFirebase from "../../assets/logo.svg";
+import { useState } from "react";
 
 export function SingIn() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const [user, setUser] = useState(null);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-      remember: data.get("remember"),
-    });
+
+    const email = data.get("email") as string;
+    const password = data.get("password") as string;
+
+    if (!email || !password) {
+      alert("Email and password are required");
+    }
+
+    console.log(email);
+    console.log(password);
+
+    await login(email, password);
+  };
+
+  const login = async (email: string, password: string) => {
+    try {
+      const user = await signInWithEmailAndPassword(auth, email, password);
+      console.log(user);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const logout = async () => {
+    await signOut(auth);
   };
 
   return (
@@ -44,6 +70,7 @@ export function SingIn() {
         </Avatar>
         <Typography component="h1" variant="h5">
           <strong>Demo</strong> Authentication Firebase
+          <br /> oi
         </Typography>
 
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
@@ -56,6 +83,7 @@ export function SingIn() {
             name="email"
             autoComplete="email"
             autoFocus
+            type="email"
           />
           <TextField
             margin="normal"
@@ -67,6 +95,7 @@ export function SingIn() {
             id="password"
             autoComplete="current-password"
           />
+
           <FormControlLabel
             control={<Checkbox value={true} name="remember" color="primary" />}
             label="Remember me"
@@ -79,6 +108,15 @@ export function SingIn() {
             sx={{ mt: 3, mb: 2 }}
           >
             Sign In
+          </Button>
+
+          <Button
+            type="button"
+            fullWidth
+            variant="outlined"
+            sx={{ mt: 3, mb: 2 }}
+          >
+            sign Out
           </Button>
 
           <Grid container>
