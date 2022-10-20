@@ -9,7 +9,7 @@ export const CheckAuthorization: React.FC<ICheckAuthorizationProps> = ({
   children,
 }) => {
   const location = useLocation();
-  const user = null;
+  const user = "null";
 
   // Return to top of page during navigation
   useEffect(() => {

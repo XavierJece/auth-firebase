@@ -5,26 +5,25 @@ import {
   useContext,
   useState,
 } from "react";
+import { authenticationService } from "../server";
 
 interface ICredentials {
   email: string;
   password: string;
 }
-
-interface IAuthContextProps {
-  user: any;
-  token: any;
-  singOut(): void;
-  singIn(credenciais: ICredentials): Promise<void>;
-}
-
 interface IUser {
   email: string;
+  name: string;
 }
 
 interface IAuthState {
   user: IUser;
-  token: string;
+}
+
+interface IAuthContextProps {
+  user: IUser;
+  logout(): void;
+  login(credenciais: ICredentials): Promise<void>;
 }
 
 interface IAuthProvider {
@@ -38,17 +37,30 @@ export const AuthProvider = ({ children }: IAuthProvider) => {
     return {} as IAuthState;
   });
 
-  const singIn = useCallback(async (credentials: ICredentials) => {}, []);
+  const login = useCallback(async ({ email, password }: ICredentials) => {
+    const { name } = await authenticationService.singIn({
+      email,
+      password,
+    });
 
-  const singOut = useCallback(() => {}, []);
+    setData({
+      user: {
+        email,
+        name,
+      },
+    });
+  }, []);
+
+  const logout = useCallback(async () => {
+    await authenticationService.singOut();
+  }, []);
 
   return (
     <AuthContext.Provider
       value={{
         user: data.user,
-        token: data.token,
-        singIn,
-        singOut,
+        login,
+        logout,
       }}
     >
       {children}

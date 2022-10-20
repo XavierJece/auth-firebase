@@ -12,47 +12,38 @@ import {
   Typography,
 } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
+import { useCallback } from "react";
 
-import { Link } from "react-router-dom";
-
-import { auth } from "../../server/firebase/config";
-import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { Link, useNavigate } from "react-router-dom";
 
 import LogoFirebase from "../../assets/logo.svg";
-import { useState } from "react";
+import { useAuth } from "../../hooks/auth";
 
 export function SingIn() {
-  const [user, setUser] = useState(null);
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
+  const handleSubmit = useCallback(
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      const data = new FormData(event.currentTarget);
 
-    const email = data.get("email") as string;
-    const password = data.get("password") as string;
+      const email = data.get("email") as string;
+      const password = data.get("password") as string;
 
-    if (!email || !password) {
-      alert("Email and password are required");
-    }
+      if (!email || !password) {
+        alert("Email and password are required");
+      }
 
-    console.log(email);
-    console.log(password);
-
-    await login(email, password);
-  };
-
-  const login = async (email: string, password: string) => {
-    try {
-      const user = await signInWithEmailAndPassword(auth, email, password);
-      console.log(user);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const logout = async () => {
-    await signOut(auth);
-  };
+      try {
+        await login({ email, password });
+        navigate(`/dashboard`);
+      } catch (error) {
+        alert("Login or Password invalid");
+      }
+    },
+    []
+  );
 
   return (
     <Container component="main" maxWidth="xs">
@@ -70,7 +61,6 @@ export function SingIn() {
         </Avatar>
         <Typography component="h1" variant="h5">
           <strong>Demo</strong> Authentication Firebase
-          <br /> oi
         </Typography>
 
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
