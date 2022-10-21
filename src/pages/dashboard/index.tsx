@@ -78,7 +78,7 @@ export function Home() {
         }}
       >
         <Typography component="h1" variant="h2">
-          Home não logada
+          Teste de deploy
         </Typography>
 
         <Box
